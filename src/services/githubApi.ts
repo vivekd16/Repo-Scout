@@ -1,5 +1,5 @@
 const GITHUB_API_BASE = 'https://api.github.com';
-const GITHUB_TOKEN = process.env.REACT_APP_GITHUB_TOKEN; // Load from environment variables
+const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN; // Load from environment variables using Vite's import.meta.env
 
 export interface GitHubIssue {
   id: number;
