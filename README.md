@@ -1,73 +1,63 @@
-# Welcome to your Lovable project
+# Open Source Agent
 
-## Project info
+A web app to discover and contribute to open source projects by finding GitHub issues that match your skills and interests. Features powerful search and filtering tools to help you get started with open source contributions.
 
-**URL**: https://lovable.dev/projects/2802fbe9-4331-4269-8fd1-a51b1cb953f8
+## Features
+- Search and filter GitHub issues by language, label, and more
+- Modern UI with responsive design
+- Easy navigation and contribution guidance
 
-## How can I edit this code?
+## Getting Started
 
-There are several ways of editing your application.
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18 or newer recommended)
+- [npm](https://www.npmjs.com/) or [bun](https://bun.sh/) (optional)
 
-**Use Lovable**
+### Installation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/2802fbe9-4331-4269-8fd1-a51b1cb953f8) and start prompting.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/repo-scout.git
+   cd repo-scout
+   ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   bun install
+   ```
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   # or
+   bun run dev
+   ```
+4. Open your browser and go to `http://localhost:5173` (or the port shown in your terminal).
 
-Changes made via Lovable will be committed automatically to this repo.
+## Contributing
 
-**Use your preferred IDE**
+We welcome contributions! To get started:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Fork the repository** and create your branch:
+   ```bash
+   git checkout -b feat/your-feature-name
+   ```
+2. **Make your changes** and commit them:
+   ```bash
+   git add .
+   git commit -m "feat: describe your change"
+   ```
+3. **Push to your fork** and open a Pull Request:
+   ```bash
+   git push origin feat/your-feature-name
+   ```
+4. **Describe your changes** in the PR and request a review.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Guidelines
+- Follow the existing code style and naming conventions.
+- Write clear, concise commit messages.
+- Add tests or documentation as needed.
 
-Follow these steps:
+## License
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/2802fbe9-4331-4269-8fd1-a51b1cb953f8) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License.
