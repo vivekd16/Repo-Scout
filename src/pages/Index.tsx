@@ -1,8 +1,7 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, GitBranch, Users, BookOpen, Loader2 } from "lucide-react";
+import { Search, Filter, Github, Users, BookOpen, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { searchGitHubIssues, ProcessedIssue } from "@/services/githubApi";
@@ -72,7 +71,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <div className="bg-blue-600 p-2 rounded-lg">
-                <GitBranch className="h-6 w-6 text-white" />
+                <Github className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-slate-900">Repo Scout</h1>
@@ -80,6 +79,11 @@ const Index = () => {
               </div>
             </div>
             <nav className="flex items-center space-x-4">
+              <Button variant="ghost" asChild>
+                <a href="https://github.com/vivekd16/Repo-Scout" target="_blank" rel="noopener noreferrer">
+                  <Github className="h-4 w-4" />
+                </a>
+              </Button>
               <Button variant="ghost" asChild>
                 <Link to="/guidance">
                   <BookOpen className="h-4 w-4 mr-2" />
