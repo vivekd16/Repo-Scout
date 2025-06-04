@@ -75,7 +75,7 @@ const Index = () => {
                 <GitBranch className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">Open Source Agent</h1>
+                <h1 className="text-xl font-bold text-slate-900">Repo Scout</h1>
                 <p className="text-sm text-slate-600">Discover & contribute to open source</p>
               </div>
             </div>

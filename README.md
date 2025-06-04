@@ -1,4 +1,4 @@
-# Open Source Agent
+# Repo Scout
 
 A web app to discover and contribute to open source projects by finding GitHub issues that match your skills and interests. Features powerful search and filtering tools to help you get started with open source contributions.
 
@@ -32,7 +32,7 @@ A web app to discover and contribute to open source projects by finding GitHub i
    # or
    bun run dev
    ```
-4. Open your browser and go to `http://localhost:5173` (or the port shown in your terminal).
+
 
 ## Contributing
 
