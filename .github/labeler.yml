@@ -1,0 +1,7 @@
+labels:
+  documentation:
+    - "docs/**"
+  frontend:
+    - "src/frontend/**"
+  backend:
+    - "src/backend/**" 
