@@ -1,12 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, Github, Users, BookOpen, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Search, Filter, Github, Users, BookOpen } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { searchGitHubIssues, ProcessedIssue } from "@/services/githubApi";
 import { useToast } from "@/hooks/use-toast";
 import { IssueCard } from "@/components/IssueCard";
+import Loader from "@/components/Loader";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,6 +16,7 @@ const Index = () => {
   const [issues, setIssues] = useState<ProcessedIssue[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const { toast } = useToast();
 
   const popularLanguages = [
@@ -24,6 +26,15 @@ const Index = () => {
   const popularLabels = [
     "good first issue", "help wanted", "bug", "enhancement", "documentation", "hacktoberfest"
   ];
+
+  useEffect(() => {
+    // Add a delay to show the loader when the page loads
+    const timer = setTimeout(() => {
+      setIsPageLoading(false);
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const toggleLabel = (label: string) => {
     setSelectedLabels(prev => 
@@ -38,6 +49,9 @@ const Index = () => {
     setHasSearched(true);
     
     try {
+      // Add a minimum delay to show the loader
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       console.log('Starting search with:', { selectedLanguage, selectedLabels, searchQuery });
       const results = await searchGitHubIssues(
         selectedLanguage || undefined,
@@ -62,6 +76,14 @@ const Index = () => {
       setIsLoading(false);
     }
   };
+
+  if (isPageLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -175,10 +197,10 @@ const Index = () => {
               disabled={isLoading}
             >
               {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Searching Latest Issues...
-                </>
+                <div className="flex items-center justify-center w-full">
+                  <Search className="h-4 w-4 mr-2 animate-spin" />
+                  <span>Searching Latest Issues...</span>
+                </div>
               ) : (
                 <>
                   <Search className="h-4 w-4 mr-2" />
@@ -194,7 +216,7 @@ const Index = () => {
           <div className="mb-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-slate-900">
-                {isLoading ? "Searching..." : "Latest Issues"}
+                Latest Issues
               </h3>
               <div className="flex items-center gap-2 text-slate-600">
                 <Users className="h-4 w-4" />
@@ -203,18 +225,17 @@ const Index = () => {
             </div>
 
             {isLoading ? (
-              <div className="text-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                <p className="text-slate-600">Searching GitHub for the latest issues and fetching contribution guides...</p>
+              <div className="flex items-center justify-center min-h-[120px]">
+                <Loader />
               </div>
             ) : issues.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full">
                 {issues.map((issue, index) => (
                   <IssueCard key={index} issue={issue} />
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
+              <div className="text-center w-full">
                 <p className="text-slate-600">No issues found matching your criteria. Try adjusting your search filters.</p>
               </div>
             )}
