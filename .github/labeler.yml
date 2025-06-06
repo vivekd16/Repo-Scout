@@ -1,0 +1,9 @@
+# .github/labeler.yml
+frontend:
+  - src/components/*
+  - src/pages/*
+backend:
+  - src/services/*
+  - src/hooks/*
+docs:
+  - '**/*.md'
