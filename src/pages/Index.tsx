@@ -8,6 +8,9 @@ import { searchGitHubIssues, ProcessedIssue } from "@/services/githubApi";
 import { useToast } from "@/hooks/use-toast";
 import { IssueCard } from "@/components/IssueCard";
 import Loader from "@/components/Loader";
+import { useSearchLimit } from "@/hooks/useSearchLimit";
+import { useAuth } from "@/lib/AuthContext";
+import AuthModal from "@/components/AuthModal";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,6 +21,8 @@ const Index = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const { toast } = useToast();
+  const { searchCount, showAuthModal, setShowAuthModal, incrementSearchCount, isSearchLimitReached } = useSearchLimit();
+  const { user, logout } = useAuth();
 
   const popularLanguages = [
     "JavaScript", "Python", "Java", "TypeScript", "C++", "Go", "Rust", "PHP"
@@ -45,8 +50,14 @@ const Index = () => {
   };
 
   const handleSearch = async () => {
+    if (isSearchLimitReached) {
+      setShowAuthModal(true);
+      return;
+    }
+
     setIsLoading(true);
     setHasSearched(true);
+    incrementSearchCount();
     
     try {
       // Add a minimum delay to show the loader
@@ -101,6 +112,38 @@ const Index = () => {
               </div>
             </div>
             <nav className="flex items-center space-x-4">
+              {user ? (
+                <div className="relative group">
+                  <Button variant="ghost" className="flex items-center gap-2">
+                    <span className="max-w-[150px] truncate">{user.email}</span>
+                    <svg
+                      className="h-4 w-4 transition-transform group-hover:rotate-180"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </Button>
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
+                    <button
+                      onClick={logout}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Button variant="ghost" onClick={() => setShowAuthModal(true)}>
+                  Sign In
+                </Button>
+              )}
               <Button variant="ghost" asChild>
                 <a href="https://github.com/vivekd16/Repo-Scout" target="_blank" rel="noopener noreferrer">
                   <Github className="h-4 w-4" />
@@ -127,6 +170,11 @@ const Index = () => {
             Discover the latest GitHub issues that match your skills and interests. Get PR templates 
             and contribution guides for each repository to help you contribute effectively.
           </p>
+          {!user && (
+            <p className="text-sm text-slate-500 mt-2">
+              {5 - searchCount} searches remaining before sign in required
+            </p>
+          )}
         </div>
 
         {/* Search and Filters */}
@@ -248,24 +296,30 @@ const Index = () => {
             <Card className="text-center">
               <CardContent className="pt-6">
                 <div className="text-3xl font-bold text-blue-600 mb-2">∞</div>
-                <div className="text-slate-600">Latest GitHub Issues</div>
+                <p className="text-slate-600">Open Source Projects</p>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-green-600 mb-2">∞</div>
-                <div className="text-slate-600">Good First Issues</div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">24/7</div>
+                <p className="text-slate-600">Active Community</p>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-purple-600 mb-2">📋</div>
-                <div className="text-slate-600">PR Templates & Guides</div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">100%</div>
+                <p className="text-slate-600">Free to Use</p>
               </CardContent>
             </Card>
           </div>
         )}
       </main>
+
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)}
+        isRequired={isSearchLimitReached}
+      />
     </div>
   );
 };
