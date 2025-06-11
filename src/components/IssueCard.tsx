@@ -42,22 +42,22 @@ export const IssueCard = ({ issue }: IssueCardProps) => {
           <CardTitle className="text-lg leading-tight">
             {issue.title}
           </CardTitle>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Calendar className="h-3 w-3" />
             {formatRelativeDate(issue.createdAt)}
           </div>
         </div>
-        <CardDescription className="font-medium text-blue-600">
+        <CardDescription className="font-medium text-primary">
           {issue.repo}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="bg-slate-100">
+            <Badge variant="secondary" className="bg-muted">
               {issue.language}
             </Badge>
-            <div className="flex items-center gap-1 text-xs text-slate-500">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <MessageSquare className="h-3 w-3" />
               {issue.comments} comments
             </div>
@@ -78,7 +78,7 @@ export const IssueCard = ({ issue }: IssueCardProps) => {
               </Badge>
             )}
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-muted-foreground">
             Created {formatDate(issue.createdAt)} by {issue.author}
           </div>
           <div className="flex gap-2 mt-4">

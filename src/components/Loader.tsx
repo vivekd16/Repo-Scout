@@ -1,14 +1,31 @@
 import React from 'react';
 import styled from 'styled-components';
 
+const getTextColor = () => {
+  if (typeof document !== 'undefined') {
+    return document.documentElement.classList.contains('dark') ? '#fff' : '#111';
+  }
+  return '#111';
+};
+
 const Loader = () => {
+  const [color, setColor] = React.useState(getTextColor());
+
+  React.useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setColor(getTextColor());
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <StyledWrapper>
       <div>
         <div className="loader">
           <svg viewBox="0 0 80 80">
             <rect x={8} y={8} width={64} height={64} />
-            <text x="50%" y="60%" textAnchor="middle" fill="black" fontSize={24} fontWeight="bold">
+            <text x="50%" y="60%" textAnchor="middle" fill={color} fontSize={24} fontWeight="bold">
               R
             </text>
           </svg>
@@ -16,7 +33,7 @@ const Loader = () => {
         <div className="loader">
           <svg viewBox="0 0 80 80">
             <rect x={8} y={8} width={64} height={64} />
-            <text x="50%" y="60%" textAnchor="middle" fill="black" fontSize={24} fontWeight="bold">
+            <text x="50%" y="60%" textAnchor="middle" fill={color} fontSize={24} fontWeight="bold">
               E
             </text>
           </svg>
@@ -24,7 +41,7 @@ const Loader = () => {
         <div className="loader">
           <svg viewBox="0 0 80 80">
             <rect x={8} y={8} width={64} height={64} />
-            <text x="50%" y="60%" textAnchor="middle" fill="black" fontSize={24} fontWeight="bold">
+            <text x="50%" y="60%" textAnchor="middle" fill={color} fontSize={24} fontWeight="bold">
               P
             </text>
           </svg>
@@ -32,7 +49,7 @@ const Loader = () => {
         <div className="loader">
           <svg viewBox="0 0 80 80">
             <rect x={8} y={8} width={64} height={64} />
-            <text x="50%" y="60%" textAnchor="middle" fill="black" fontSize={24} fontWeight="bold">
+            <text x="50%" y="60%" textAnchor="middle" fill={color} fontSize={24} fontWeight="bold">
               O
             </text>
           </svg>
@@ -50,6 +67,10 @@ const StyledWrapper = styled.div`
     width: 60px;
     height: 60px;
     position: relative;
+  }
+
+  html.dark .loader, .dark .loader {
+    --loader-text-color: white;
   }
 
   .loader:before {
