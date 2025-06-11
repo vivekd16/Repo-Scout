@@ -23,7 +23,7 @@ const Index = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const { toast } = useToast();
-  const { searchCount, /* showAuthModal, setShowAuthModal, */ incrementSearchCount, isSearchLimitReached } = useSearchLimit(); // Removed showAuthModal and setShowAuthModal
+  const { searchCount, incrementSearchCount, isSearchLimitReached } = useSearchLimit();
   const { user, logout } = useAuth();
 
   const popularLanguages = [
@@ -53,8 +53,7 @@ const Index = () => {
 
   const handleSearch = async () => {
     if (isSearchLimitReached) {
-      // Instead of setting local state, we rely on App.tsx to handle AuthModal display
-      // setShowAuthModal(true);
+      // AuthModal is now handled in App.tsx and will show automatically if user is not logged in.
       return;
     }
 
@@ -66,7 +65,7 @@ const Index = () => {
       // Add a minimum delay to show the loader
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      console.log('Starting search with:', { selectedLanguage, selectedLabels, searchQuery });
+      // console.log('Starting search with:', { selectedLanguage, selectedLabels, searchQuery }); // Removed console.log
       const results = await searchGitHubIssues(
         selectedLanguage || undefined,
         selectedLabels.length > 0 ? selectedLabels : undefined,
@@ -141,7 +140,7 @@ const Index = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button variant="ghost" onClick={() => { /* No direct control of AuthModal here */ }} className="ml-auto">
+                <Button variant="ghost" onClick={() => { /* AuthModal is now handled by App.tsx */ }} className="ml-auto">
                   Sign In
                 </Button>
               )}
@@ -305,11 +304,6 @@ const Index = () => {
         )}
       </main>
 
-      {/* <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)}
-        isRequired={isSearchLimitReached}
-      /> */} {/* AuthModal is now handled in App.tsx */}
     </div>
   );
 };
