@@ -1,18 +1,22 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ExternalLink, FileText, GitPullRequest, BookOpen, Calendar, MessageSquare } from "lucide-react";
+import { ExternalLink, FileText, GitPullRequest, BookOpen, Calendar, MessageSquare, CheckCircle } from "lucide-react";
 import { ProcessedIssue } from "@/services/githubApi";
+import { trackIssue } from "@/services/issueTracking";
+import { useState } from "react";
+import { auth } from "@/lib/firebase";
 
 interface IssueCardProps {
   issue: ProcessedIssue;
 }
 
 export const IssueCard = ({ issue }: IssueCardProps) => {
+  const [isTracking, setIsTracking] = useState(false);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
@@ -27,6 +31,29 @@ export const IssueCard = ({ issue }: IssueCardProps) => {
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
     return `${Math.ceil(diffDays / 30)} months ago`;
+  };
+
+  const handleTrackIssue = async () => {
+    if (!auth.currentUser) {
+      // Handle unauthenticated user
+      return;
+    }
+
+    try {
+      setIsTracking(true);
+      await trackIssue({
+        issueId: issue.url,
+        issueTitle: issue.title,
+        issueUrl: issue.url,
+        prStatus: 'open'
+      });
+      // Show success message or update UI
+    } catch (error) {
+      console.error('Error tracking issue:', error);
+      // Show error message
+    } finally {
+      setIsTracking(false);
+    }
   };
 
   const defaultPRTemplate = `## Description
@@ -134,6 +161,15 @@ Feel free to ask questions in the issues or discussions section!`;
                 <ExternalLink className="h-3 w-3 mr-1" />
                 View Issue
               </a>
+            </Button>
+            <Button
+              size="sm"
+              className="flex-1"
+              onClick={handleTrackIssue}
+              disabled={isTracking}
+            >
+              <CheckCircle className="h-3 w-3 mr-1" />
+              {isTracking ? 'Tracking...' : 'Track Issue'}
             </Button>
             <Dialog>
               <DialogTrigger asChild>

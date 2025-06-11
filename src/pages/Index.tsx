@@ -10,7 +10,8 @@ import { IssueCard } from "@/components/IssueCard";
 import Loader from "@/components/Loader";
 import { useSearchLimit } from "@/hooks/useSearchLimit";
 import { useAuth } from "@/lib/AuthContext";
-import AuthModal from "@/components/AuthModal";
+// import AuthModal from "@/components/AuthModal"; // Removed as AuthModal is handled in App.tsx
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const Index = () => {
@@ -22,7 +23,7 @@ const Index = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const { toast } = useToast();
-  const { searchCount, showAuthModal, setShowAuthModal, incrementSearchCount, isSearchLimitReached } = useSearchLimit();
+  const { searchCount, /* showAuthModal, setShowAuthModal, */ incrementSearchCount, isSearchLimitReached } = useSearchLimit(); // Removed showAuthModal and setShowAuthModal
   const { user, logout } = useAuth();
 
   const popularLanguages = [
@@ -52,7 +53,8 @@ const Index = () => {
 
   const handleSearch = async () => {
     if (isSearchLimitReached) {
-      setShowAuthModal(true);
+      // Instead of setting local state, we rely on App.tsx to handle AuthModal display
+      // setShowAuthModal(true);
       return;
     }
 
@@ -113,37 +115,6 @@ const Index = () => {
               </div>
             </div>
             <nav className="flex items-center space-x-4">
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2">
-                      <span className="max-w-[150px] truncate">{user.email}</span>
-                      <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={logout}>
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button variant="ghost" onClick={() => setShowAuthModal(true)}>
-                  Sign In
-                </Button>
-              )}
               <Button variant="ghost" asChild>
                 <a href="https://github.com/vivekd16/Repo-Scout" target="_blank" rel="noopener noreferrer">
                   <Github className="h-4 w-4" />
@@ -155,6 +126,25 @@ const Index = () => {
                   Contribution Guide
                 </Link>
               </Button>
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Avatar className="h-8 w-8 ml-auto cursor-pointer">
+                      <AvatarImage src={user.photoURL || undefined} />
+                      <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={logout}>
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button variant="ghost" onClick={() => { /* No direct control of AuthModal here */ }} className="ml-auto">
+                  Sign In
+                </Button>
+              )}
             </nav>
           </div>
         </div>
@@ -315,11 +305,11 @@ const Index = () => {
         )}
       </main>
 
-      <AuthModal 
+      {/* <AuthModal 
         isOpen={showAuthModal} 
         onClose={() => setShowAuthModal(false)}
         isRequired={isSearchLimitReached}
-      />
+      /> */} {/* AuthModal is now handled in App.tsx */}
     </div>
   );
 };
