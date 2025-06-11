@@ -44,12 +44,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, isRequired = fal
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 w-96 relative">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      <div className="bg-background rounded-lg p-8 w-96 relative">
         {!isRequired && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
           >
             ✕
           </button>
@@ -61,7 +61,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, isRequired = fal
         {/* Google Sign In Button */}
         <Button
           onClick={handleGoogleSignIn}
-          className="w-full mb-4 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+          className="w-full mb-4 bg-background text-foreground border border-border hover:bg-muted"
           variant="outline"
         >
           <img
@@ -77,44 +77,44 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, isRequired = fal
             <span className="w-full border-t" />
           </Separator>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-2 text-gray-500">Or continue with email</span>
+            <span className="bg-background px-2 text-muted-foreground">Or continue with email</span>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-foreground">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="block text-sm font-medium text-foreground">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-border shadow-sm focus:border-primary focus:ring-primary"
               required
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <Button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             {isLogin ? 'Login' : 'Sign Up'}
           </Button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
+        <p className="mt-4 text-center text-sm text-muted-foreground">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="text-blue-600 hover:text-blue-500"
+            className="text-primary hover:text-primary/80"
           >
             {isLogin ? 'Sign Up' : 'Login'}
           </button>

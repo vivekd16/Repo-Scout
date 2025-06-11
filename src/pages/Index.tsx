@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, Github, Users, BookOpen } from "lucide-react";
+import { Search, Filter, Github, Users, BookOpen, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { searchGitHubIssues, ProcessedIssue } from "@/services/githubApi";
@@ -21,7 +21,9 @@ const Index = () => {
   const [issues, setIssues] = useState<ProcessedIssue[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(() => {
+    return typeof window !== 'undefined' && sessionStorage.getItem('hasSeenIndexLoader') ? false : true;
+  });
   const { toast } = useToast();
   const { searchCount, incrementSearchCount, isSearchLimitReached } = useSearchLimit();
   const { user, logout } = useAuth();
@@ -35,13 +37,15 @@ const Index = () => {
   ];
 
   useEffect(() => {
-    // Add a delay to show the loader when the page loads
+    if (!isPageLoading) return;
     const timer = setTimeout(() => {
       setIsPageLoading(false);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('hasSeenIndexLoader', 'true');
+      }
     }, 3500);
-
     return () => clearTimeout(timer);
-  }, []);
+  }, [isPageLoading]);
 
   const toggleLabel = (label: string) => {
     setSelectedLabels(prev => 
@@ -90,6 +94,35 @@ const Index = () => {
     }
   };
 
+  // Theme switch component
+  function ThemeSwitch() {
+    const [theme, setTheme] = useState(() => {
+      const saved = localStorage.getItem('theme');
+      if (saved) return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    });
+
+    useEffect(() => {
+      document.documentElement.classList.remove('light', 'dark');
+      document.documentElement.classList.add(theme);
+      localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    return (
+      <button
+        aria-label="Toggle dark mode"
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        className="relative flex items-center w-10 h-6 rounded-full bg-muted transition-colors focus:outline-none border border-border mr-2"
+      >
+        <span
+          className={`absolute left-1 top-1 w-4 h-4 rounded-full bg-background shadow transition-transform ${theme === 'dark' ? 'translate-x-4' : ''}`}
+        />
+        <Sun className={`absolute left-1 top-1 w-4 h-4 text-yellow-400 transition-opacity ${theme === 'dark' ? 'opacity-0' : 'opacity-100'}`} />
+        <Moon className={`absolute right-1 top-1 w-4 h-4 text-blue-600 transition-opacity ${theme === 'dark' ? 'opacity-100' : 'opacity-0'}`} />
+      </button>
+    );
+  }
+
   if (isPageLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
@@ -99,21 +132,22 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+      <header className="bg-background border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <Github className="h-6 w-6 text-white" />
+              <div className="bg-primary p-2 rounded-lg">
+                <Github className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">Repo Scout</h1>
-                <p className="text-sm text-slate-600">Discover & contribute to open source</p>
+                <h1 className="text-xl font-bold text-foreground">Repo Scout</h1>
+                <p className="text-sm text-muted-foreground">Discover & contribute to open source</p>
               </div>
             </div>
             <nav className="flex items-center space-x-4">
+              <ThemeSwitch />
               <Button variant="ghost" asChild>
                 <a href="https://github.com/vivekd16/Repo-Scout" target="_blank" rel="noopener noreferrer">
                   <Github className="h-4 w-4" />
@@ -121,8 +155,7 @@ const Index = () => {
               </Button>
               <Button variant="ghost" asChild>
                 <Link to="/guidance">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Contribution Guide
+                  <BookOpen className="h-4 w-4" />
                 </Link>
               </Button>
               {user ? (
@@ -152,15 +185,15 @@ const Index = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
             Find Your Next Open Source Contribution
           </h2>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Discover the latest GitHub issues that match your skills and interests. Get PR templates 
             and contribution guides for each repository to help you contribute effectively.
           </p>
           {!user && (
-            <p className="text-sm text-slate-500 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               {5 - searchCount} searches remaining before sign in required
             </p>
           )}
@@ -190,7 +223,7 @@ const Index = () => {
 
             {/* Language Filter */}
             <div>
-              <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Filter className="h-4 w-4" />
                 Programming Language
               </h3>
@@ -211,7 +244,7 @@ const Index = () => {
 
             {/* Labels Filter */}
             <div>
-              <h3 className="font-semibold text-slate-900 mb-3">Labels</h3>
+              <h3 className="font-semibold text-foreground mb-3">Labels</h3>
               <div className="flex flex-wrap gap-2">
                 {popularLabels.map((label) => (
                   <Button
@@ -228,7 +261,7 @@ const Index = () => {
             </div>
 
             <Button 
-              className="w-full bg-blue-600 hover:bg-blue-700" 
+              className="w-full bg-primary hover:bg-primary/90" 
               size="lg"
               onClick={handleSearch}
               disabled={isLoading}
@@ -252,10 +285,10 @@ const Index = () => {
         {hasSearched && (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-slate-900">
+              <h3 className="text-2xl font-bold text-foreground">
                 Latest Issues
               </h3>
-              <div className="flex items-center gap-2 text-slate-600">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Users className="h-4 w-4" />
                 <span>{issues.length} issues found (sorted by creation date)</span>
               </div>
@@ -273,7 +306,7 @@ const Index = () => {
               </div>
             ) : (
               <div className="text-center w-full">
-                <p className="text-slate-600">No issues found matching your criteria. Try adjusting your search filters.</p>
+                <p className="text-muted-foreground">No issues found matching your criteria. Try adjusting your search filters.</p>
               </div>
             )}
           </div>
@@ -284,20 +317,20 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-blue-600 mb-2">∞</div>
-                <p className="text-slate-600">Open Source Projects</p>
+                <div className="text-3xl font-bold text-primary mb-2">∞</div>
+                <p className="text-muted-foreground">Open Source Projects</p>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-blue-600 mb-2">24/7</div>
-                <p className="text-slate-600">Active Community</p>
+                <div className="text-3xl font-bold text-primary mb-2">24/7</div>
+                <p className="text-muted-foreground">Active Community</p>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-blue-600 mb-2">100%</div>
-                <p className="text-slate-600">Free to Use</p>
+                <div className="text-3xl font-bold text-primary mb-2">100%</div>
+                <p className="text-muted-foreground">Free to Use</p>
               </CardContent>
             </Card>
           </div>
