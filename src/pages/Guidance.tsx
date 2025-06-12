@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,9 +55,9 @@ const Guidance = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+      <header className="bg-background border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -70,12 +69,12 @@ const Guidance = () => {
               </Button>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <FileText className="h-6 w-6 text-white" />
+              <div className="bg-primary p-2 rounded-lg">
+                <FileText className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">Contribution Guide</h1>
-                <p className="text-sm text-slate-600">Learn how to contribute to open source</p>
+                <h1 className="text-xl font-bold text-foreground">Contribution Guide</h1>
+                <p className="text-sm text-muted-foreground">Learn how to contribute to open source</p>
               </div>
             </div>
           </div>
@@ -85,10 +84,10 @@ const Guidance = () => {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
             Contributing to Open Source
           </h2>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             A comprehensive guide to making your first (or next) open source contribution. 
             Learn the process, best practices, and common templates used in the community.
           </p>
@@ -110,16 +109,16 @@ const Guidance = () => {
               {contributionSteps.map((step, index) => (
                 <div key={index} className="flex gap-4">
                   <div className="flex-shrink-0">
-                    <div className="bg-blue-100 text-blue-600 p-2 rounded-lg">
+                    <div className="bg-primary/10 text-primary p-2 rounded-lg">
                       {step.icon}
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900 mb-1">
+                    <h3 className="font-semibold text-foreground mb-1">
                       {index + 1}. {step.title}
                     </h3>
-                    <p className="text-slate-600 mb-2">{step.description}</p>
-                    <p className="text-sm text-slate-500">{step.details}</p>
+                    <p className="text-muted-foreground mb-2">{step.description}</p>
+                    <p className="text-xs text-muted-foreground">{step.details}</p>
                   </div>
                 </div>
               ))}
@@ -142,14 +141,14 @@ const Guidance = () => {
             </CardHeader>
             <CardContent>
               <div className="bg-slate-50 rounded-lg p-4 font-mono text-sm">
-                <div className="text-slate-700">
+                <div className="text-foreground">
                   <div className="font-semibold mb-2">## Description</div>
-                  <div className="text-slate-600 mb-4">
+                  <div className="text-muted-foreground mb-4">
                     Brief description of what this PR does
                   </div>
                   
                   <div className="font-semibold mb-2">## Type of Change</div>
-                  <div className="text-slate-600 mb-4">
+                  <div className="text-muted-foreground mb-4">
                     - [ ] Bug fix<br/>
                     - [ ] New feature<br/>
                     - [ ] Breaking change<br/>
@@ -157,12 +156,12 @@ const Guidance = () => {
                   </div>
                   
                   <div className="font-semibold mb-2">## Testing</div>
-                  <div className="text-slate-600 mb-4">
+                  <div className="text-muted-foreground mb-4">
                     Describe how you tested your changes
                   </div>
                   
                   <div className="font-semibold mb-2">## Checklist</div>
-                  <div className="text-slate-600">
+                  <div className="text-muted-foreground">
                     - [ ] Code follows style guidelines<br/>
                     - [ ] Tests pass<br/>
                     - [ ] Documentation updated
@@ -185,31 +184,31 @@ const Guidance = () => {
             </CardHeader>
             <CardContent>
               <div className="bg-slate-50 rounded-lg p-4 font-mono text-sm">
-                <div className="text-slate-700">
+                <div className="text-foreground">
                   <div className="font-semibold mb-2">## Issue Type</div>
-                  <div className="text-slate-600 mb-4">
+                  <div className="text-muted-foreground mb-4">
                     [ ] Bug Report [ ] Feature Request
                   </div>
                   
                   <div className="font-semibold mb-2">## Description</div>
-                  <div className="text-slate-600 mb-4">
+                  <div className="text-muted-foreground mb-4">
                     Clear description of the issue or feature
                   </div>
                   
                   <div className="font-semibold mb-2">## Steps to Reproduce</div>
-                  <div className="text-slate-600 mb-4">
+                  <div className="text-muted-foreground mb-4">
                     1. Go to '...'<br/>
                     2. Click on '....'<br/>
                     3. See error
                   </div>
                   
                   <div className="font-semibold mb-2">## Expected Behavior</div>
-                  <div className="text-slate-600 mb-4">
+                  <div className="text-muted-foreground mb-4">
                     What should happen
                   </div>
                   
                   <div className="font-semibold mb-2">## Environment</div>
-                  <div className="text-slate-600">
+                  <div className="text-muted-foreground">
                     - OS: [e.g. iOS]<br/>
                     - Browser: [e.g. chrome, safari]<br/>
                     - Version: [e.g. 22]
@@ -236,11 +235,11 @@ const Guidance = () => {
           <CardContent>
             <div className="grid gap-6 md:grid-cols-2">
               <div>
-                <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Code className="h-4 w-4" />
                   Code Quality
                 </h3>
-                <ul className="space-y-2 text-slate-600">
+                <ul className="space-y-2 text-muted-foreground">
                   <li>• Follow the project's coding style</li>
                   <li>• Write clear, descriptive commit messages</li>
                   <li>• Keep changes focused and minimal</li>
@@ -250,11 +249,11 @@ const Guidance = () => {
               </div>
               
               <div>
-                <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   Community Etiquette
                 </h3>
-                <ul className="space-y-2 text-slate-600">
+                <ul className="space-y-2 text-muted-foreground">
                   <li>• Be respectful and patient</li>
                   <li>• Read contribution guidelines first</li>
                   <li>• Ask questions if you're unsure</li>
@@ -277,28 +276,28 @@ const Guidance = () => {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-2">
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">good first issue</Badge>
-                <p className="text-sm text-slate-600">Perfect for newcomers to the project</p>
+                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-900">good first issue</Badge>
+                <p className="text-sm text-muted-foreground">Perfect for newcomers to the project</p>
               </div>
               <div className="space-y-2">
-                <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">help wanted</Badge>
-                <p className="text-sm text-slate-600">Maintainers are looking for help on this issue</p>
+                <Badge className="bg-primary/10 text-primary hover:bg-primary/20">help wanted</Badge>
+                <p className="text-sm text-muted-foreground">Maintainers are looking for help on this issue</p>
               </div>
               <div className="space-y-2">
-                <Badge className="bg-red-100 text-red-800 hover:bg-red-100">bug</Badge>
-                <p className="text-sm text-slate-600">Something isn't working as expected</p>
+                <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/20">bug</Badge>
+                <p className="text-sm text-muted-foreground">Something isn't working as expected</p>
               </div>
               <div className="space-y-2">
-                <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">enhancement</Badge>
-                <p className="text-sm text-slate-600">New feature or improvement request</p>
+                <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 hover:bg-purple-100 dark:hover:bg-purple-900">enhancement</Badge>
+                <p className="text-sm text-muted-foreground">New feature or improvement request</p>
               </div>
               <div className="space-y-2">
-                <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">documentation</Badge>
-                <p className="text-sm text-slate-600">Improvements to documentation needed</p>
+                <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 hover:bg-yellow-100 dark:hover:bg-yellow-900">documentation</Badge>
+                <p className="text-sm text-muted-foreground">Improvements to documentation needed</p>
               </div>
               <div className="space-y-2">
-                <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">hacktoberfest</Badge>
-                <p className="text-sm text-slate-600">Eligible for Hacktoberfest contributions</p>
+                <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 hover:bg-orange-100 dark:hover:bg-orange-900">hacktoberfest</Badge>
+                <p className="text-sm text-muted-foreground">Eligible for Hacktoberfest contributions</p>
               </div>
             </div>
           </CardContent>

@@ -108,7 +108,9 @@ export const fetchRepoTemplates = async (repoFullName: string): Promise<RepoTemp
 export const searchGitHubIssues = async (
   language?: string,
   labels?: string[],
-  query?: string
+  query?: string,
+  perPage: number = 100,
+  page: number = 1
 ): Promise<ProcessedIssue[]> => {
   try {
     // Build search query
@@ -129,7 +131,7 @@ export const searchGitHubIssues = async (
     }
 
     // Sort by created date (newest first)
-    const url = `${GITHUB_API_BASE}/search/issues?q=${encodeURIComponent(searchQuery)}&sort=created&order=desc&per_page=30`;
+    const url = `${GITHUB_API_BASE}/search/issues?q=${encodeURIComponent(searchQuery)}&sort=created&order=desc&per_page=${perPage}&page=${page}`;
     
     console.log('Searching GitHub with query:', searchQuery);
     

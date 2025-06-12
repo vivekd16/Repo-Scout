@@ -56,24 +56,24 @@ export const IssueHistory: React.FC = () => {
           {history.map((item) => (
             <div key={item.id} className="border rounded-lg p-4 shadow-sm">
               <h3 className="font-semibold">
-                <a href={item.issueUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                <a href={item.issueUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                   {item.issueTitle}
                 </a>
               </h3>
-              <div className="mt-2 text-sm text-gray-600">
+              <div className="mt-2 text-sm text-muted-foreground">
                 <p>Solved on: {item.solvedAt.toLocaleDateString()}</p>
                 <p>
                   PR Status:{' '}
                   <span className={`font-medium ${
-                    item.prStatus === 'merged' ? 'text-green-600' :
-                    item.prStatus === 'open' ? 'text-blue-600' :
-                    'text-red-600'
+                    item.prStatus === 'merged' ? 'text-green-600 dark:text-green-400' :
+                    item.prStatus === 'open' ? 'text-primary' :
+                    'text-destructive dark:text-red-400'
                   }`}>
                     {item.prStatus.charAt(0).toUpperCase() + item.prStatus.slice(1)}
                   </span>
                 </p>
                 {item.prUrl && (
-                  <a href={item.prUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  <a href={item.prUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                     View Pull Request
                   </a>
                 )}
