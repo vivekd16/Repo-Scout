@@ -17,7 +17,7 @@ A web app to discover and contribute to open source projects by finding GitHub i
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/repo-scout.git
+   git clone https://github.com/vivekd16/repo-scout.git
    cd repo-scout
    ```
 2. **Install dependencies:**
