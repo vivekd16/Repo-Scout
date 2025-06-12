@@ -18,7 +18,6 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { useInView } from "react-intersection-observer"
 import { Badge } from "@/components/ui/badge";
 import { MessageSquare, Calendar } from "lucide-react";
 
@@ -38,10 +37,6 @@ const Index = () => {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [pullStart, setPullStart] = useState(0)
   const [pullDistance, setPullDistance] = useState(0)
-  const { ref: loadMoreRef, inView } = useInView()
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const popularLanguages = [
     "JavaScript", "Python", "Java", "TypeScript", "C++", "Go", "Rust", "PHP"
@@ -70,48 +65,28 @@ const Index = () => {
     );
   };
 
-  const handleSearch = async (isLoadMore = false) => {
-    if (isSearchLimitReached && !isLoadMore) {
+  const handleSearch = async () => {
+    if (isSearchLimitReached) {
       return;
     }
-
-    if (!isLoadMore) {
-      setIsLoading(true);
-      setHasSearched(true);
-      setPage(1);
-      incrementSearchCount();
-    } else {
-      setIsLoadingMore(true);
-    }
-    
+    setIsLoading(true);
+    setHasSearched(true);
+    incrementSearchCount();
     try {
       // Add a minimum delay to show the loader
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       const results = await searchGitHubIssues(
         selectedLanguage || undefined,
         selectedLabels.length > 0 ? selectedLabels : undefined,
-        searchQuery || undefined
+        searchQuery || undefined,
+        100, // perPage
+        1    // page
       );
-      
-      if (isLoadMore) {
-        if (results.length === 0) {
-          setHasMore(false);
-        } else {
-          setIssues(prev => [...prev, ...results]);
-          setPage(prev => prev + 1);
-        }
-      } else {
-        setIssues(results);
-        setHasMore(results.length > 0);
-      }
-      
-      if (!isLoadMore) {
-        toast({
-          title: "Search completed",
-          description: `Found ${results.length} latest issues`,
-        });
-      }
+      setIssues(results);
+      toast({
+        title: "Search completed",
+        description: `Found ${results.length} issues`,
+      });
     } catch (error) {
       console.error('Search failed:', error);
       toast({
@@ -121,13 +96,12 @@ const Index = () => {
       });
     } finally {
       setIsLoading(false);
-      setIsLoadingMore(false);
     }
   };
 
   const handleSearchClick = (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    handleSearch(false);
+    handleSearch();
   };
 
   const handlePullStart = useCallback((e: TouchEvent) => {
@@ -169,12 +143,6 @@ const Index = () => {
       document.removeEventListener('touchend', handlePullEnd)
     }
   }, [handlePullStart, handlePullMove, handlePullEnd])
-
-  useEffect(() => {
-    if (inView && hasSearched && !isLoading && !isLoadingMore && hasMore && issues.length > 0) {
-      handleSearch(true);
-    }
-  }, [inView, hasSearched, isLoading, isLoadingMore, hasMore, issues.length]);
 
   // Theme switch component
   function ThemeSwitch() {
@@ -439,35 +407,16 @@ const Index = () => {
                 <span>{issues.length} issues found (sorted by creation date)</span>
               </div>
             </div>
-
             {isLoading ? (
               <div className="flex items-center justify-center min-h-[120px]">
                 <Loader />
               </div>
             ) : issues.length > 0 ? (
-              <>
-                <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
-                  {issues.map((issue) => (
-                    <IssueCard key={issue.url} issue={issue} />
-                  ))}
-                </div>
-                {/* Infinite scroll trigger */}
-                {hasMore && (
-                  <div ref={loadMoreRef} className="h-20 w-full flex items-center justify-center">
-                    {isLoadingMore && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Loader className="h-5 w-5" />
-                        <span>Loading more issues...</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {!hasMore && issues.length > 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No more issues to load
-                  </div>
-                )}
-              </>
+              <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
+                {issues.map((issue) => (
+                  <IssueCard key={issue.url} issue={issue} />
+                ))}
+              </div>
             ) : (
               <div className="text-center w-full">
                 <p className="text-muted-foreground text-sm sm:text-base">No issues found matching your criteria. Try adjusting your search filters.</p>
