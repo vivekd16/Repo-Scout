@@ -25,8 +25,8 @@ const Loader = ({ className }: LoaderProps) => {
   }, []);
 
   return (
-    <StyledWrapper className={cn(className)}>
-      <div>
+    <StyledWrapper className={cn("flex items-center justify-center", className)}>
+      <div className="flex items-center justify-center">
         <div className="loader">
           <svg viewBox="0 0 80 80">
             <rect x={8} y={8} width={64} height={64} />
@@ -224,7 +224,17 @@ const StyledWrapper = styled.div`
 
   .loader {
     display: inline-block;
-    margin: 0 16px;
-  }`;
+    margin: 0 8px;
+  }
+
+  /* Add responsive sizing */
+  @media (max-width: 640px) {
+    .loader {
+      width: 40px;
+      height: 40px;
+      margin: 0 4px;
+    }
+  }
+`;
 
 export default Loader; 
