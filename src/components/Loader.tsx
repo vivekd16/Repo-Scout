@@ -1,5 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
+import { cn } from "@/lib/utils";
+
+interface LoaderProps {
+  className?: string;
+}
 
 const getTextColor = () => {
   if (typeof document !== 'undefined') {
@@ -8,7 +13,7 @@ const getTextColor = () => {
   return '#111';
 };
 
-const Loader = () => {
+const Loader = ({ className }: LoaderProps) => {
   const [color, setColor] = React.useState(getTextColor());
 
   React.useEffect(() => {
@@ -20,7 +25,7 @@ const Loader = () => {
   }, []);
 
   return (
-    <StyledWrapper>
+    <StyledWrapper className={cn(className)}>
       <div>
         <div className="loader">
           <svg viewBox="0 0 80 80">

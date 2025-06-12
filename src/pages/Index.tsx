@@ -19,6 +19,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { useInView } from "react-intersection-observer"
+import { Badge } from "@/components/ui/badge";
+import { MessageSquare, Calendar } from "lucide-react";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,6 +39,9 @@ const Index = () => {
   const [pullStart, setPullStart] = useState(0)
   const [pullDistance, setPullDistance] = useState(0)
   const { ref: loadMoreRef, inView } = useInView()
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const popularLanguages = [
     "JavaScript", "Python", "Java", "TypeScript", "C++", "Go", "Rust", "PHP"
@@ -65,33 +70,48 @@ const Index = () => {
     );
   };
 
-  const handleSearch = async () => {
-    if (isSearchLimitReached) {
-      // AuthModal is now handled in App.tsx and will show automatically if user is not logged in.
+  const handleSearch = async (isLoadMore = false) => {
+    if (isSearchLimitReached && !isLoadMore) {
       return;
     }
 
-    setIsLoading(true);
-    setHasSearched(true);
-    incrementSearchCount();
+    if (!isLoadMore) {
+      setIsLoading(true);
+      setHasSearched(true);
+      setPage(1);
+      incrementSearchCount();
+    } else {
+      setIsLoadingMore(true);
+    }
     
     try {
       // Add a minimum delay to show the loader
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // console.log('Starting search with:', { selectedLanguage, selectedLabels, searchQuery }); // Removed console.log
       const results = await searchGitHubIssues(
         selectedLanguage || undefined,
         selectedLabels.length > 0 ? selectedLabels : undefined,
         searchQuery || undefined
       );
       
-      setIssues(results);
+      if (isLoadMore) {
+        if (results.length === 0) {
+          setHasMore(false);
+        } else {
+          setIssues(prev => [...prev, ...results]);
+          setPage(prev => prev + 1);
+        }
+      } else {
+        setIssues(results);
+        setHasMore(results.length > 0);
+      }
       
-      toast({
-        title: "Search completed",
-        description: `Found ${results.length} latest issues`,
-      });
+      if (!isLoadMore) {
+        toast({
+          title: "Search completed",
+          description: `Found ${results.length} latest issues`,
+        });
+      }
     } catch (error) {
       console.error('Search failed:', error);
       toast({
@@ -101,7 +121,13 @@ const Index = () => {
       });
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
+  };
+
+  const handleSearchClick = (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    handleSearch(false);
   };
 
   const handlePullStart = useCallback((e: TouchEvent) => {
@@ -145,11 +171,10 @@ const Index = () => {
   }, [handlePullStart, handlePullMove, handlePullEnd])
 
   useEffect(() => {
-    if (inView && hasSearched && !isLoading && issues.length > 0) {
-      // Load more issues when scrolling to bottom
-      handleSearch()
+    if (inView && hasSearched && !isLoading && !isLoadingMore && hasMore && issues.length > 0) {
+      handleSearch(true);
     }
-  }, [inView, hasSearched, isLoading, issues.length, handleSearch])
+  }, [inView, hasSearched, isLoading, isLoadingMore, hasMore, issues.length]);
 
   // Theme switch component
   function ThemeSwitch() {
@@ -327,7 +352,7 @@ const Index = () => {
                 className="text-base sm:text-lg py-2 sm:py-3 pr-10"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    handleSearch()
+                    handleSearchClick(e)
                   }
                 }}
               />
@@ -335,7 +360,7 @@ const Index = () => {
                 variant="ghost"
                 size="icon"
                 className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                onClick={handleSearch}
+                onClick={handleSearchClick}
                 disabled={isLoading}
               >
                 <Search className="h-4 w-4" />
@@ -384,7 +409,7 @@ const Index = () => {
             <Button 
               className="w-full bg-primary hover:bg-primary/90 text-sm sm:text-base" 
               size="lg"
-              onClick={handleSearch}
+              onClick={handleSearchClick}
               disabled={isLoading}
             >
               {isLoading ? (
@@ -422,12 +447,26 @@ const Index = () => {
             ) : issues.length > 0 ? (
               <>
                 <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
-                  {issues.map((issue, index) => (
-                    <IssueCard key={index} issue={issue} />
+                  {issues.map((issue) => (
+                    <IssueCard key={issue.url} issue={issue} />
                   ))}
                 </div>
                 {/* Infinite scroll trigger */}
-                <div ref={loadMoreRef} className="h-10 w-full" />
+                {hasMore && (
+                  <div ref={loadMoreRef} className="h-20 w-full flex items-center justify-center">
+                    {isLoadingMore && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Loader className="h-5 w-5" />
+                        <span>Loading more issues...</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {!hasMore && issues.length > 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No more issues to load
+                  </div>
+                )}
               </>
             ) : (
               <div className="text-center w-full">

@@ -8,12 +8,14 @@ import { ExternalLink, FileText, GitPullRequest, BookOpen, Calendar, MessageSqua
 import { ProcessedIssue } from "@/services/githubApi";
 import { useState } from "react";
 import { auth } from "@/lib/firebase";
+import { cn } from "@/lib/utils";
 
 interface IssueCardProps {
   issue: ProcessedIssue;
+  className?: string;
 }
 
-export const IssueCard = ({ issue }: IssueCardProps) => {
+export const IssueCard = ({ issue, className }: IssueCardProps) => {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
@@ -36,7 +38,7 @@ export const IssueCard = ({ issue }: IssueCardProps) => {
   const defaultContributingGuide = `# Contributing to ${issue.repo}\r\n\r\nThank you for your interest in contributing! Here's how you can get started:\r\n\r\n## Getting Started\r\n1. Fork the repository\r\n2. Clone your fork locally\r\n3. Create a new branch for your feature/fix\r\n4. Make your changes\r\n5. Test your changes\r\n6. Submit a pull request\r\n\r\n## Development Setup\r\n1. Install dependencies\r\n2. Set up your development environment\r\n3. Run tests to ensure everything works\r\n\r\n## Guidelines\r\n- Follow the existing code style\r\n- Write clear, descriptive commit messages\r\n- Add tests for new functionality\r\n- Update documentation as needed\r\n- Be respectful in discussions\r\n\r\n## Need Help?\r\nFeel free to ask questions in the issues or discussions section!`;
 
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-300 border-l-4 border-l-blue-500">
+    <Card className={cn("hover:shadow-lg transition-shadow duration-300 border-l-4 border-l-blue-500", className)}>
       <CardHeader>
         <div className="flex justify-between items-start gap-2">
           <CardTitle className="text-lg leading-tight">
