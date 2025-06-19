@@ -110,11 +110,16 @@ export const searchGitHubIssues = async (
   labels?: string[],
   query?: string,
   perPage: number = 100,
-  page: number = 1
+  page: number = 1,
+  organization?: string
 ): Promise<ProcessedIssue[]> => {
   try {
     // Build search query
     let searchQuery = 'is:issue is:open';
+    
+    if (organization) {
+      searchQuery += ` org:${organization}`;
+    }
     
     if (language) {
       searchQuery += ` language:${language}`;

@@ -37,6 +37,7 @@ const Index = () => {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [pullStart, setPullStart] = useState(0)
   const [pullDistance, setPullDistance] = useState(0)
+  const [organization, setOrganization] = useState("");
 
   const popularLanguages = [
     "JavaScript", "Python", "Java", "TypeScript", "C++", "Go", "Rust", "PHP"
@@ -80,7 +81,8 @@ const Index = () => {
         selectedLabels.length > 0 ? selectedLabels : undefined,
         searchQuery || undefined,
         100, // perPage
-        1    // page
+        1,    // page
+        organization || undefined // pass organization
       );
       setIssues(results);
       toast({
@@ -312,24 +314,29 @@ const Index = () => {
           </CardHeader>
           <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
             {/* Search Input */}
-            <div className="relative">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center mb-4">
               <Input
+                className="flex-1"
                 placeholder="Search issues by keywords..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="text-base sm:text-lg py-2 sm:py-3 pr-10"
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSearchClick(e)
-                  }
+                  if (e.key === 'Enter') handleSearchClick(e);
+                }}
+              />
+              <Input
+                className="flex-1"
+                placeholder="Organization (e.g. huggingface, google-deepmind)"
+                value={organization}
+                onChange={(e) => setOrganization(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSearchClick(e);
                 }}
               />
               <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
                 onClick={handleSearchClick}
-                disabled={isLoading}
+                disabled={isLoading || isSearchLimitReached}
+                className="flex-shrink-0"
               >
                 <Search className="h-4 w-4" />
               </Button>
