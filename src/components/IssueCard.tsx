@@ -38,11 +38,11 @@ export const IssueCard = ({ issue, className }: IssueCardProps) => {
 
   return (
     <div className={cn(
-      "neumorphic-card bg-[#e3edf7] dark:bg-slate-800 p-6 rounded-[10px] border border-transparent cursor-pointer transition-all duration-500 hover:translate-y-1",
+      "neumorphic-card bg-[#e3edf7] dark:bg-slate-900 p-6 rounded-[10px] border border-transparent cursor-pointer transition-all duration-500 hover:translate-y-1",
       "shadow-[6px_6px_10px_-1px_rgba(0,0,0,0.15),-6px_-6px_10px_-1px_rgba(255,255,255,0.7)]",
-      "dark:shadow-[6px_6px_10px_-1px_rgba(0,0,0,0.4),-6px_-6px_10px_-1px_rgba(255,255,255,0.05)]",
+      "dark:shadow-[6px_6px_10px_-1px_rgba(0,0,0,0.7),-6px_-6px_10px_-1px_rgba(255,255,255,0.1)]",
       "hover:shadow-[inset_4px_4px_6px_-1px_rgba(0,0,0,0.2),inset_-4px_-4px_6px_-1px_rgba(255,255,255,0.7),-0.5px_-0.5px_0px_rgba(255,255,255,1),0.5px_0.5px_0px_rgba(0,0,0,0.15),0px_12px_10px_-10px_rgba(0,0,0,0.05)]",
-      "dark:hover:shadow-[inset_4px_4px_6px_-1px_rgba(0,0,0,0.4),inset_-4px_-4px_6px_-1px_rgba(255,255,255,0.05),-0.5px_-0.5px_0px_rgba(255,255,255,0.05),0.5px_0.5px_0px_rgba(0,0,0,0.15),0px_12px_10px_-10px_rgba(0,0,0,0.05)]",
+      "dark:hover:shadow-[inset_4px_4px_6px_-1px_rgba(0,0,0,0.7),inset_-4px_-4px_6px_-1px_rgba(255,255,255,0.1),-0.5px_-0.5px_0px_rgba(255,255,255,0.1),0.5px_0.5px_0px_rgba(0,0,0,0.15),0px_12px_10px_-10px_rgba(0,0,0,0.05)]",
       "hover:border-[rgba(0,0,0,0.1)] dark:hover:border-[rgba(255,255,255,0.1)]",
       className
     )}>
@@ -65,7 +65,7 @@ export const IssueCard = ({ issue, className }: IssueCardProps) => {
       {/* Content */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300">
+          <Badge variant="secondary" className="bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-gray-300">
             {issue.language}
           </Badge>
           <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
@@ -79,13 +79,13 @@ export const IssueCard = ({ issue, className }: IssueCardProps) => {
             <Badge 
               key={labelIndex} 
               variant="outline" 
-              className="text-xs border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300"
+              className="text-xs border-gray-300 dark:border-slate-700 text-gray-700 dark:text-gray-300"
             >
               {label}
             </Badge>
           ))}
           {issue.labels.length > 3 && (
-            <Badge variant="outline" className="text-xs border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300">
+            <Badge variant="outline" className="text-xs border-gray-300 dark:border-slate-700 text-gray-700 dark:text-gray-300">
               +{issue.labels.length - 3} more
             </Badge>
           )}
@@ -100,7 +100,7 @@ export const IssueCard = ({ issue, className }: IssueCardProps) => {
           <Button 
             variant="outline" 
             size="sm" 
-            className="flex-1 bg-white hover:bg-gray-50 border-gray-300 text-gray-700 hover:text-gray-800 dark:bg-slate-700 dark:hover:bg-slate-600 dark:border-slate-500 dark:text-gray-200 dark:hover:text-white"
+            className="flex-1 bg-white hover:bg-gray-50 border-gray-300 text-gray-700 hover:text-gray-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-600 dark:text-gray-200 dark:hover:text-white"
             asChild
           >
             <a href={issue.url} target="_blank" rel="noopener noreferrer">
