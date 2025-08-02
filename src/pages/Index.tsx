@@ -44,7 +44,7 @@ const Index = () => {
   ];
 
   const popularLabels = [
-    "good first issue", "help wanted", "bug", "enhancement", "documentation", "hacktoberfest", "ssoc", "ssoc s4"
+    "good first issue", "help wanted", "bug", "enhancement", "documentation", "hacktoberfest", "ssoc", "ssoc s4","gssoc25"
   ];
 
   useEffect(() => {
