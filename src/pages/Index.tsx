@@ -74,21 +74,7 @@ const Index = () => {
     setHasSearched(true);
     incrementSearchCount();
     try {
-      // Add a minimum delay to show the loader
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const results = await searchGitHubIssues(
-        selectedLanguage || undefined,
-        selectedLabels.length > 0 ? selectedLabels : undefined,
-        searchQuery || undefined,
-        100, // perPage
-        1,    // page
-        organization || undefined // pass organization
-      );
-      setIssues(results);
-      toast({
-        title: "Search completed",
-        description: `Found ${results.length} issues`,
-      });
+
     } catch (error) {
       console.error('Search failed:', error);
       toast({
