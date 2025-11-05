@@ -1,25 +1,14 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, Github, Users, BookOpen, Sun, Moon, Menu, LogOut, LogIn } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, ChevronDown, Home, Flame, Star, Bug, Twitter, Github, Mail, Filter as FilterIcon, Star as StarIcon } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { searchGitHubIssues, ProcessedIssue } from "@/services/githubApi";
 import { useToast } from "@/hooks/use-toast";
-import { IssueCard } from "@/components/IssueCard";
-import Loader from "@/components/Loader";
-import { useSearchLimit } from "@/hooks/useSearchLimit";
-import { useAuth } from "@/lib/AuthContext";
-// import AuthModal from "@/components/AuthModal"; // Removed as AuthModal is handled in App.tsx
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Calendar } from "lucide-react";
+import Loader from "@/components/Loader";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { useSearchLimit } from "@/hooks/useSearchLimit";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,61 +17,25 @@ const Index = () => {
   const [issues, setIssues] = useState<ProcessedIssue[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [isPageLoading, setIsPageLoading] = useState(() => {
-    return typeof window !== 'undefined' && sessionStorage.getItem('hasSeenIndexLoader') ? false : true;
-  });
-  const { toast } = useToast();
-  const { searchCount, incrementSearchCount, isSearchLimitReached } = useSearchLimit();
-  const { user, logout } = useAuth();
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [pullStart, setPullStart] = useState(0)
-  const [pullDistance, setPullDistance] = useState(0)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [organization, setOrganization] = useState("");
+  const [selectedPopularity, setSelectedPopularity] = useState<string>("");
 
-  const popularLanguages = [
-    "JavaScript", "Python", "Java", "TypeScript", "C++", "Go", "Rust", "PHP"
-  ];
-
-  const popularLabels = [
-    "good first issue", "help wanted", "bug", "enhancement", "documentation", "hacktoberfest", "ssoc", "ssoc s4","gssoc25"
-  ];
-
-  useEffect(() => {
-    if (!isPageLoading) return;
-    const timer = setTimeout(() => {
-      setIsPageLoading(false);
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('hasSeenIndexLoader', 'true');
-      }
-    }, 3500);
-    return () => clearTimeout(timer);
-  }, [isPageLoading]);
-
-  const toggleLabel = (label: string) => {
-    setSelectedLabels(prev => 
-      prev.includes(label) 
-        ? prev.filter(l => l !== label)
-        : [...prev, label]
-    );
-  };
+  const { incrementSearchCount } = useSearchLimit();
+  const { toast } = useToast();
 
   const handleSearch = async () => {
-    if (isSearchLimitReached) {
-      return;
-    }
     setIsLoading(true);
     setHasSearched(true);
     incrementSearchCount();
     try {
-      // Add a minimum delay to show the loader
-      await new Promise(resolve => setTimeout(resolve, 1000));
       const results = await searchGitHubIssues(
         selectedLanguage || undefined,
         selectedLabels.length > 0 ? selectedLabels : undefined,
         searchQuery || undefined,
-        100, // perPage
-        1,    // page
-        organization || undefined // pass organization
+        100,
+        1,
+        organization || undefined
       );
       setIssues(results);
       toast({
@@ -106,357 +59,274 @@ const Index = () => {
     handleSearch();
   };
 
-  const handlePullStart = useCallback((e: TouchEvent) => {
-    if (window.scrollY === 0) {
-      setPullStart(e.touches[0].clientY)
-    }
-  }, [])
-
-  const handlePullMove = useCallback((e: TouchEvent) => {
-    if (pullStart === 0) return
-    const touch = e.touches[0]
-    const pull = touch.clientY - pullStart
-    if (pull > 0) {
-      setPullDistance(pull)
-    }
-  }, [pullStart])
-
-  const handlePullEnd = useCallback(() => {
-    if (pullDistance > 100) {
-      setIsRefreshing(true)
-      handleSearch().finally(() => {
-        setIsRefreshing(false)
-        setPullDistance(0)
-      })
-    } else {
-      setPullDistance(0)
-    }
-    setPullStart(0)
-  }, [pullDistance, handleSearch])
-
-  useEffect(() => {
-    document.addEventListener('touchstart', handlePullStart)
-    document.addEventListener('touchmove', handlePullMove)
-    document.addEventListener('touchend', handlePullEnd)
-
-    return () => {
-      document.removeEventListener('touchstart', handlePullStart)
-      document.removeEventListener('touchmove', handlePullMove)
-      document.removeEventListener('touchend', handlePullEnd)
-    }
-  }, [handlePullStart, handlePullMove, handlePullEnd])
-
-  // Theme switch component
-  function ThemeSwitch() {
-    const [theme, setTheme] = useState(() => {
-      const saved = localStorage.getItem('theme');
-      if (saved) return saved;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    });
-
-    useEffect(() => {
-      document.documentElement.classList.remove('light', 'dark');
-      document.documentElement.classList.add(theme);
-      localStorage.setItem('theme', theme);
-    }, [theme]);
-
-    return (
-      <button
-        aria-label="Toggle dark mode"
-        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className="p-2 rounded-md hover:bg-accent transition-colors"
-      >
-        {theme === 'dark' ? (
-          <Sun className="h-5 w-5 text-foreground" />
-        ) : (
-          <Moon className="h-5 w-5 text-foreground" />
-        )}
-      </button>
+  const toggleLabel = (label: string) => {
+    setSelectedLabels(prev => 
+      prev.includes(label) 
+        ? prev.filter(l => l !== label)
+        : [...prev, label]
     );
-  }
+  };
 
-  if (isPageLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
+  const getLanguageBadgeClass = (lang: string) => {
+    const badges: Record<string, string> = {
+      "Go": "bg-sky-500 text-white",
+      "TypeScript": "bg-blue-500 text-white",
+      "JavaScript": "bg-yellow-500 text-white",
+      "Python": "bg-blue-600 text-white",
+      "Java": "bg-orange-500 text-white",
+      "Rust": "bg-orange-700 text-white",
+      "C++": "bg-blue-600 text-white",
+      "PHP": "bg-purple-500 text-white",
+    };
+    return badges[lang] || "bg-gray-600 text-white";
+  };
+
+  const getPopularityBadge = (stars: number) => {
+    if (stars >= 50000) return { text: "Legendary", class: "bg-yellow-500 text-black" };
+    if (stars >= 20000) return { text: "Famous", class: "bg-purple-500 text-white" };
+    if (stars >= 5000) return { text: "Popular", class: "bg-green-500 text-white" };
+    return { text: "Growing", class: "bg-gray-500 text-white" };
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Pull to refresh indicator */}
-      <div 
-        className={`fixed top-0 left-0 right-0 h-1 bg-primary transition-transform duration-200 ${
-          pullDistance > 0 ? 'scale-x-100' : 'scale-x-0'
-        }`}
-        style={{ transform: `scaleX(${Math.min(pullDistance / 200, 1)})` }}
-      />
-      
-      {/* Header */}
-      <header className="bg-background border-b border-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="bg-primary p-1.5 sm:p-2 rounded-lg">
-                <Github className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-lg sm:text-xl font-bold text-foreground">Repo Scout</h1>
-                <p className="text-xs sm:text-sm text-muted-foreground">Discover & contribute to open source</p>
+    <div className="flex h-screen bg-black text-white overflow-hidden">
+      {/* Sidebar */}
+      <div className={`bg-[#1a1a1a] border-r border-gray-800 transition-all duration-300 relative ${
+        isSidebarCollapsed ? 'w-16' : 'w-64'
+      }`}>
+
+        <div className="h-full flex flex-col">
+          {/* Sidebar top section for the toggle button (separate from nav items) */}
+          <div className={`px-2 py-3 border-b border-gray-800 flex ${isSidebarCollapsed ? 'justify-center' : 'justify-end'}`}>
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="bg-gray-800 p-1 rounded border border-gray-700 hover:bg-gray-700 transition-all"
+              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isSidebarCollapsed ? <ChevronRight className="h-4 w-4 text-gray-300" /> : <ChevronLeft className="h-4 w-4 text-gray-300" />}
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 overflow-y-auto py-4">
+            {/* GENERAL */}
+            <div className="px-4 mb-4">
+              {!isSidebarCollapsed && <h3 className="text-xs uppercase text-gray-500 font-semibold mb-2">GENERAL</h3>}
+              <div className="space-y-1">
+                <button className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-colors ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                  <Home className="h-5 w-5 flex-shrink-0" />
+                  {!isSidebarCollapsed && <span>Home</span>}
+                </button>
+                <button className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                  <Flame className="h-5 w-5 flex-shrink-0" />
+                  {!isSidebarCollapsed && <span>Trending</span>}
+                </button>
+                <button className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                  <Search className="h-5 w-5 flex-shrink-0" />
+                  {!isSidebarCollapsed && <span>Discover</span>}
+                </button>
               </div>
             </div>
-            
-            {/* Desktop Navigation */}
-            <nav className="hidden sm:flex items-center space-x-4">
-              <ThemeSwitch />
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 sm:h-9 sm:w-9" asChild>
-                <a href="https://github.com/vivekd16/Repo-Scout" target="_blank" rel="noopener noreferrer">
-                  <Github className="h-4 w-4" />
-                </a>
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 sm:h-9 sm:w-9" asChild>
-                <Link to="/guidance">
-                  <BookOpen className="h-4 w-4" />
-                </Link>
-              </Button>
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Avatar className="h-7 w-7 sm:h-8 sm:w-8 ml-auto cursor-pointer">
-                      <AvatarImage src={user.photoURL || undefined} />
-                      <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={logout}>
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button variant="ghost" size="sm" onClick={() => { /* AuthModal is now handled by App.tsx */ }} className="ml-auto">
-                  Sign In
-                </Button>
-              )}
-            </nav>
 
-            {/* Mobile Navigation */}
-            <div className="flex items-center space-x-2 sm:hidden">
-              <ThemeSwitch />
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[240px] sm:w-[300px]">
-                  <nav className="flex flex-col space-y-4 mt-4">
-                    <Button variant="ghost" className="justify-start" asChild>
-                      <a href="https://github.com/vivekd16/Repo-Scout" target="_blank" rel="noopener noreferrer">
-                        <Github className="h-4 w-4 mr-2" />
-                        GitHub
-                      </a>
-                    </Button>
-                    <Button variant="ghost" className="justify-start" asChild>
-                      <Link to="/guidance">
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        Guidance
-                      </Link>
-                    </Button>
-                    {user ? (
-                      <Button variant="ghost" className="justify-start" onClick={logout}>
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Sign Out
-                      </Button>
-                    ) : (
-                      <Button variant="ghost" className="justify-start" onClick={() => { /* AuthModal is now handled by App.tsx */ }}>
-                        <LogIn className="h-4 w-4 mr-2" />
-                        Sign In
-                      </Button>
-                    )}
-                  </nav>
-                </SheetContent>
-              </Sheet>
+            {/* FEEDBACK */}
+            <div className="px-4 mb-4">
+              {!isSidebarCollapsed && <h3 className="text-xs uppercase text-gray-500 font-semibold mb-2">FEEDBACK</h3>}
+              <div className="space-y-1">
+                <button className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                  <Star className="h-5 w-5 flex-shrink-0" />
+                  {!isSidebarCollapsed && <span>Suggest Feature</span>}
+                </button>
+                <button className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                  <Bug className="h-5 w-5 flex-shrink-0" />
+                  {!isSidebarCollapsed && <span>Report Bug</span>}
+                </button>
+              </div>
+            </div>
+
+            {/* SOCIAL */}
+            <div className="px-4 mb-4">
+              {!isSidebarCollapsed && <h3 className="text-xs uppercase text-gray-500 font-semibold mb-2">SOCIAL</h3>}
+              <div className="space-y-1">
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                  <Twitter className="h-5 w-5 flex-shrink-0" />
+                  {!isSidebarCollapsed && <span>Twitter</span>}
+                </a>
+                <a href="https://github.com/vivekd16/Repo-Scout" target="_blank" rel="noopener noreferrer" className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                  <Github className="h-5 w-5 flex-shrink-0" />
+                  {!isSidebarCollapsed && <span>GitHub</span>}
+                </a>
+                <button className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+                  <Mail className="h-5 w-5 flex-shrink-0" />
+                  {!isSidebarCollapsed && <span>Email</span>}
+                </button>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden bg-black">
+        {/* Header */}
+        <div className="border-b border-gray-800 px-6 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-white">REPO SCOUT</h2>
             </div>
           </div>
-        </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-            Find Your Next Open Source Contribution
-          </h2>
-          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto px-2">
-            Discover the latest GitHub issues that match your skills and interests. Get PR templates 
-            and contribution guides for each repository to help you contribute effectively.
-          </p>
-          {!user && (
-            <p className="text-xs sm:text-sm text-muted-foreground mt-2">
-              {5 - searchCount} searches remaining before sign in required
-            </p>
-          )}
-        </div>
-
-        {/* Search and Filters */}
-        <Card className="mb-6 sm:mb-8 shadow-lg">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-              <Search className="h-4 w-4 sm:h-5 sm:w-5" />
-              Search Latest Issues
-            </CardTitle>
-            <CardDescription className="text-sm sm:text-base">
-              Find the most recent open source issues to contribute to, sorted by creation date
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
-            {/* Search Input */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center mb-4">
+          {/* Search Bar */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
-                className="flex-1"
-                placeholder="Search issues by keywords..."
+                placeholder="Curated open source projects from Y Combinator"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSearchClick(e);
                 }}
+                className="pl-10 bg-gray-900 border-gray-700 text-white placeholder:text-gray-500"
               />
-              <Input
-                className="flex-1"
-                placeholder="Organization (e.g. huggingface, google-deepmind)"
-                value={organization}
-                onChange={(e) => setOrganization(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSearchClick(e);
-                }}
-              />
-              <Button
+            </div>
+            <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700 gap-2">
+                    {selectedLanguage || 'All Languages'}
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-gray-900 border border-gray-700 text-white">
+                  <DropdownMenuItem onClick={() => setSelectedLanguage("")}>All Languages</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedLanguage("JavaScript")}>JavaScript</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedLanguage("TypeScript")}>TypeScript</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedLanguage("Python")}>Python</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedLanguage("Go")}>Go</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedLanguage("Rust")}>Rust</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedLanguage("Java")}>Java</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedLanguage("C++")}>C++</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedLanguage("PHP")}>PHP</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700 gap-2">
+                    {selectedPopularity || 'All Popularity'}
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-gray-900 border border-gray-700 text-white">
+                  <DropdownMenuItem onClick={() => setSelectedPopularity("")}>All Popularity</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedPopularity("Legendary")}>Legendary</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedPopularity("Famous")}>Famous</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedPopularity("Popular")}>Popular</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSelectedPopularity("Growing")}>Growing</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button 
                 onClick={handleSearchClick}
-                disabled={isLoading || isSearchLimitReached}
-                className="flex-shrink-0"
+                disabled={isLoading}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
-                <Search className="h-4 w-4" />
+                {isLoading ? "Searching..." : "Search"}
               </Button>
             </div>
+          </div>
 
-            {/* Language Filter */}
-            <div>
-              <h3 className="font-semibold text-foreground mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base">
-                <Filter className="h-3 w-3 sm:h-4 sm:w-4" />
-                Programming Language
-              </h3>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {popularLanguages.map((lang) => (
-                  <Button
-                    key={lang}
-                    variant={selectedLanguage === lang ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedLanguage(selectedLanguage === lang ? "" : lang)}
-                    className="rounded-full text-xs sm:text-sm"
-                  >
-                    {lang}
-                  </Button>
-                ))}
-              </div>
+          {/* Filter Tags */}
+          <div className="flex flex-wrap gap-2 mt-3">
+            {["JavaScript", "Python", "TypeScript", "Go", "Rust"].map((lang) => (
+              <Badge
+                key={lang}
+                variant={selectedLanguage === lang ? "default" : "secondary"}
+                className={`cursor-pointer ${selectedLanguage === lang ? 'bg-blue-600' : 'bg-gray-800 hover:bg-gray-700'}`}
+                onClick={() => setSelectedLanguage(selectedLanguage === lang ? "" : lang)}
+              >
+                {lang}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        {/* Table Content */}
+        <div className="flex-1 overflow-y-auto">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader />
             </div>
-
-            {/* Labels Filter */}
-            <div>
-              <h3 className="font-semibold text-foreground mb-2 sm:mb-3 text-sm sm:text-base">Labels</h3>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {popularLabels.map((label) => (
-                  <Button
-                    key={label}
-                    variant={selectedLabels.includes(label) ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => toggleLabel(label)}
-                    className="rounded-full text-xs sm:text-sm"
-                  >
-                    {label}
-                  </Button>
-                ))}
+          ) : issues.length > 0 ? (
+            <div className="px-6 py-4">
+              {/* Table Header */}
+              <div className="grid grid-cols-12 gap-4 pb-3 border-b border-gray-800 text-sm text-gray-400 font-semibold">
+                <div className="col-span-4">Repository</div>
+                <div className="col-span-2">Language</div>
+                <div className="col-span-2">Tags</div>
+                <div className="col-span-1">Stars</div>
+                <div className="col-span-1">Forks</div>
+                <div className="col-span-2">Popularity</div>
               </div>
-            </div>
 
-            <Button 
-              className="w-full bg-primary hover:bg-primary/90 text-sm sm:text-base" 
-              size="lg"
-              onClick={handleSearchClick}
-              disabled={isLoading}
+          {/* Table Rows */}
+          {issues
+            .map((issue, idx) => ({
+              issue,
+              idx,
+              popularity: getPopularityBadge(1000 + idx * 100).text
+            }))
+            .filter(({ popularity }) => !selectedPopularity || popularity === selectedPopularity)
+            .slice(0, 50)
+            .map(({ issue, idx, popularity }) => (
+            <div
+              key={issue.url}
+              className="grid grid-cols-12 gap-4 py-4 border-b border-gray-900 hover:bg-gray-900/50 transition-colors"
             >
-              {isLoading ? (
-                <div className="flex items-center justify-center w-full">
-                  <Search className="h-4 w-4 mr-2 animate-spin" />
-                  <span>Searching Latest Issues...</span>
+              <div className="col-span-4 flex items-center gap-3">
+                <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                  {issue.repo.split('/')[1]?.[0]?.toUpperCase() || 'R'}
                 </div>
-              ) : (
-                <>
-                  <Search className="h-4 w-4 mr-2" />
-                  Search Latest Issues
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Results Section */}
-        {hasSearched && (
-          <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0 mb-4 sm:mb-6">
-              <h3 className="text-xl sm:text-2xl font-bold text-foreground">
-                Latest Issues
-              </h3>
-              <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <Users className="h-4 w-4" />
-                <span>{issues.length} issues found (sorted by creation date)</span>
+                <a
+                  href={`https://github.com/${issue.repo}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-white hover:text-blue-400 transition-colors truncate"
+                >
+                  {issue.repo.split('/')[1] || issue.repo}
+                </a>
               </div>
-            </div>
-            {isLoading ? (
-              <div className="flex items-center justify-center min-h-[120px]">
-                <Loader />
+              <div className="col-span-2 flex items-center">
+                <Badge className={getLanguageBadgeClass(issue.language) || "bg-gray-600 text-white px-2 py-0.5 text-xs"}>
+                  {issue.language}
+                </Badge>
               </div>
-            ) : issues.length > 0 ? (
-              <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
-                {issues.map((issue) => (
-                  <IssueCard key={issue.url} issue={issue} />
+              <div className="col-span-2 flex flex-wrap gap-1 items-center">
+                {issue.labels.slice(0, 3).map((label) => (
+                  <Badge key={label} className="bg-gray-700 text-gray-300 border-0 px-2 py-0.5 text-xs">
+                    {label.substring(0, 12)}
+                  </Badge>
                 ))}
               </div>
-            ) : (
-              <div className="text-center w-full">
-                <p className="text-muted-foreground text-sm sm:text-base">No issues found matching your criteria. Try adjusting your search filters.</p>
+              <div className="col-span-1 text-gray-300 flex items-center">{issue.comments}+</div>
+              <div className="col-span-1 text-gray-300 flex items-center">{idx + 1}k</div>
+              <div className="col-span-2 flex items-center">
+                <Badge className={`${getPopularityBadge(1000 + idx * 100).class} px-2 py-0.5 text-xs`}>
+                  {popularity}
+                </Badge>
               </div>
-            )}
-          </div>
-        )}
-
-        {/* Quick Stats - only show if haven't searched yet */}
-        {!hasSearched && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <Card className="text-center">
-              <CardContent className="pt-4 sm:pt-6">
-                <div className="text-3xl font-bold text-primary mb-2">∞</div>
-                <p className="text-muted-foreground">Open Source Projects</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-4 sm:pt-6">
-                <div className="text-3xl font-bold text-primary mb-2">24/7</div>
-                <p className="text-muted-foreground">Active Community</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-4 sm:pt-6">
-                <div className="text-3xl font-bold text-primary mb-2">100%</div>
-                <p className="text-muted-foreground">Free to Use</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </main>
-
+            </div>
+          ))}
+            </div>
+          ) : hasSearched ? (
+            <div className="flex items-center justify-center h-full text-gray-400">
+              No issues found. Try adjusting your search.
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-400">
+              Enter a search term to find open source issues
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
