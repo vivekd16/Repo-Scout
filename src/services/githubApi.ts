@@ -1,5 +1,29 @@
-const GITHUB_API_BASE = 'https://api.github.com';
+const GITHUB_API_BASE = import.meta.env.VITE_API_URL || 'https://api.github.com';
 const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_TOKEN; // Load from environment variables using Vite's import.meta.env
+const USE_PROXY = import.meta.env.VITE_USE_PROXY === 'true' || true; // Prefer backend proxy by default for CORS/rate limiting
+
+async function fetchWithFallback(primaryUrl: string, secondaryUrl: string | null, headers: Record<string, string>) {
+  try {
+    const res = await fetch(primaryUrl, { headers });
+    if (res.ok) return res;
+    if (secondaryUrl) {
+      const res2 = await fetch(secondaryUrl, { headers });
+      if (res2.ok) return res2;
+      return res2; // return last response (error)
+    }
+    return res; // return primary response (error)
+  } catch (_) {
+    if (secondaryUrl) {
+      try {
+        const res2 = await fetch(secondaryUrl, { headers });
+        return res2;
+      } catch (e2) {
+        throw e2;
+      }
+    }
+    throw _;
+  }
+}
 
 export interface GitHubIssue {
   id: number;
@@ -55,12 +79,18 @@ export const fetchRepoTemplates = async (repoFullName: string): Promise<RepoTemp
   
   for (const path of prTemplatePaths) {
     try {
-      const response = await fetch(`${GITHUB_API_BASE}/repos/${repoFullName}/contents/${path}`, {
-        headers: {
-          'Authorization': `Bearer ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      });
+      const urlProxy = `/api/github/repos/${repoFullName}/contents/${path}`;
+      const urlDirect = `${GITHUB_API_BASE}/repos/${repoFullName}/contents/${path}`;
+      
+      const headers: Record<string, string> = {
+        'Accept': 'application/vnd.github.v3+json'
+      };
+      
+      if (!USE_PROXY && GITHUB_TOKEN) {
+        headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+      }
+      
+      const response = await fetchWithFallback(USE_PROXY ? urlProxy : urlDirect, USE_PROXY ? urlDirect : urlProxy, headers);
       
       if (response.ok) {
         const data = await response.json();
@@ -83,12 +113,18 @@ export const fetchRepoTemplates = async (repoFullName: string): Promise<RepoTemp
   
   for (const path of contributingPaths) {
     try {
-      const response = await fetch(`${GITHUB_API_BASE}/repos/${repoFullName}/contents/${path}`, {
-        headers: {
-          'Authorization': `Bearer ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      });
+      const urlProxy = `/api/github/repos/${repoFullName}/contents/${path}`;
+      const urlDirect = `${GITHUB_API_BASE}/repos/${repoFullName}/contents/${path}`;
+      
+      const headers: Record<string, string> = {
+        'Accept': 'application/vnd.github.v3+json'
+      };
+      
+      if (!USE_PROXY && GITHUB_TOKEN) {
+        headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+      }
+      
+      const response = await fetchWithFallback(USE_PROXY ? urlProxy : urlDirect, USE_PROXY ? urlDirect : urlProxy, headers);
       
       if (response.ok) {
         const data = await response.json();
@@ -136,17 +172,22 @@ export const searchGitHubIssues = async (
     }
 
     // Sort by created date (newest first)
-    const url = `${GITHUB_API_BASE}/search/issues?q=${encodeURIComponent(searchQuery)}&sort=created&order=desc&per_page=${perPage}&page=${page}`;
+    const endpoint = `search/issues?q=${encodeURIComponent(searchQuery)}&sort=created&order=desc&per_page=${perPage}&page=${page}`;
+    const urlProxy = `/api/github/${endpoint}`;
+    const urlDirect = `${GITHUB_API_BASE}/${endpoint}`;
     
     console.log('Searching GitHub with query:', searchQuery);
     
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${GITHUB_TOKEN}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'X-GitHub-Api-Version': '2022-11-28'
-      }
-    });
+    const headers: Record<string, string> = {
+      'Accept': 'application/vnd.github.v3+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+    
+    if (!USE_PROXY && GITHUB_TOKEN) {
+      headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+    }
+    
+    const response = await fetchWithFallback(USE_PROXY ? urlProxy : urlDirect, USE_PROXY ? urlDirect : urlProxy, headers);
 
     if (!response.ok) {
       throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
@@ -165,12 +206,18 @@ export const searchGitHubIssues = async (
         // Get repository details to fetch the language
         let repoLanguage = 'Unknown';
         try {
-          const repoResponse = await fetch(issue.repository_url, {
-            headers: {
-              'Authorization': `Bearer ${GITHUB_TOKEN}`,
-              'Accept': 'application/vnd.github.v3+json'
-            }
-          });
+          const repoUrlProxy = `/api/github/repos/${repoName}`;
+          const repoUrlDirect = issue.repository_url;
+            
+          const headers: Record<string, string> = {
+            'Accept': 'application/vnd.github.v3+json'
+          };
+          
+          if (!USE_PROXY && GITHUB_TOKEN) {
+            headers['Authorization'] = `Bearer ${GITHUB_TOKEN}`;
+          }
+          
+          const repoResponse = await fetchWithFallback(USE_PROXY ? repoUrlProxy : repoUrlDirect, USE_PROXY ? repoUrlDirect : repoUrlProxy, headers);
           
           if (repoResponse.ok) {
             const repoData = await repoResponse.json();

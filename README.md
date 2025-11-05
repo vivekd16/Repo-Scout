@@ -4,8 +4,10 @@ A web app to discover and contribute to open source projects by finding GitHub i
 
 ## Features
 - Search and filter GitHub issues by language, label, and more
-- Modern UI with responsive design
+- Modern dark-themed UI with responsive design
 - Easy navigation and contribution guidance
+- Backend server with GitHub API proxy
+- Collapsible sidebar navigation
 
 ## Getting Started
 
@@ -26,11 +28,21 @@ A web app to discover and contribute to open source projects by finding GitHub i
    # or
    bun install
    ```
-3. **Start the development server:**
+3. **Start the development server (frontend only):**
    ```bash
    npm run dev
    # or
    bun run dev
+   ```
+
+4. **Start both frontend and backend together:**
+   ```bash
+   npm run dev:all
+   ```
+
+5. **Start the backend server separately:**
+   ```bash
+   npm run server
    ```
 
 
